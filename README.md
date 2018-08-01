@@ -7,9 +7,11 @@
 ## Usage
 
 `$ cd $path_to_iGo`
+
 `$ go run cmd/interpreter/main.go` This will start up the interpreter server
 
 The interpreter will then parse your go code. And if possible evaluate the expression
+
 `$ curl -XPOST http://localhost:9999/interpret -d'{"text": $your_go_code}'`
 
 ## Supported
@@ -20,4 +22,3 @@ The interpreter will then parse your go code. And if possible evaluate the expre
 - Expressions
   - Calling built in functions
   - Calling user defined functions
-
