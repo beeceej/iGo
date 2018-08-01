@@ -22,3 +22,7 @@ The interpreter will then parse your go code. And if possible evaluate the expre
 - Expressions
   - Calling built in functions
   - Calling user defined functions
+
+Follow the development of iGo here:
+
+[https://blog.beeceej.com/blog/4](https://blog.beeceej.com/blog/4)
