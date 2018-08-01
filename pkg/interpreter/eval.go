@@ -1,13 +1,19 @@
-package interpretor
+package interpreter
+
+// Eval is largely a POC at this point,
+// What you see here is hacking together a concept until it worked, and no more.
+// Though it works (yay), a large refactoring is to come.
 
 import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"text/template"
 )
 
 const tmpl = `package main
+
 func main() {
 	{{ .M }}
 }
@@ -23,13 +29,13 @@ type EvalData struct {
 	F []string
 }
 
-const path = "/Users/brianjones/development/golib/src/github.com/beeceej/iGo/cmd/iGoBin/exe.go"
+var path = filepath.Join(os.Getenv("PWD"), "cmd/iGoBin/exe.go")
 
 // Eval will evaluate the text
-func (i *Interpretor) Eval(text string) {
+func (i *Interpreter) Eval(text string) {
 	var ed *EvalData
 	t := template.Must(template.New("mainTmpl").Parse(tmpl))
-	f, err := os.Create("/Users/brianjones/development/golib/src/github.com/beeceej/iGo/cmd/iGoBin/exe.go")
+	f, err := os.Create(path)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -46,7 +52,7 @@ func (i *Interpretor) Eval(text string) {
 		fmt.Println(err.Error())
 	}
 
-	cmd := exec.Command("/Users/brianjones/development/golib/bin/goimports", "-w", "/Users/brianjones/development/golib/src/github.com/beeceej/iGo/cmd/iGoBin/exe.go")
+	cmd := exec.Command(filepath.Join("goimports"), "-w", path)
 	_, err = cmd.Output()
 
 	if err != nil {
@@ -55,11 +61,12 @@ func (i *Interpretor) Eval(text string) {
 	}
 	f.Sync()
 
-	cmd = exec.Command("go", "run", "/Users/brianjones/development/golib/src/github.com/beeceej/iGo/cmd/iGoBin/exe.go")
+	cmd = exec.Command("go", "run", path)
 	b, err := cmd.Output()
 	if err != nil {
 		fmt.Println("Error calling go run", err.Error())
 	}
+
 	fmt.Println(fmt.Sprintf(">> %s", string(b)))
 	f.Sync()
 	os.Remove(path)

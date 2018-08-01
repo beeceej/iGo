@@ -4,127 +4,228 @@ import (
 	"testing"
 )
 
-func Test_isFunction(t *testing.T) {
-	var (
-		expectSuccess func(error)
-		expectFailure func(error)
-		err           error
-	)
-	expectSuccess = func(err error) {
-		if err != nil {
-			t.Fail()
-		}
-	}
-	expectFailure = func(err error) {
-		if err == nil {
-			t.Fail()
-		}
-	}
+func Test_extract_expectThreeExtracted(t *testing.T) {
+	threeFns := `
+func a() {
 
-	tests := []func(){
-		func() {
-			_, err = NewFunction(
-				`func a(){
-	
-			}`,
-			)
-			expectSuccess(err)
-		},
-		func() {
-			_, err = NewFunction(
-				`func a()
-		
-				}`,
-			)
-			expectFailure(err)
-		},
-		func() {
-			_, err = NewFunction(
-				`func a(){}`,
-			)
-			expectSuccess(err)
-		},
-		func() {
-			_, err = NewFunction(
-				`func a(a ...string){
-					fmt.Println(a)
-				}`,
-			)
-			expectSuccess(err)
-		},
-		func() {
-			_, err = NewFunction(
-				`func a(a ...string) (err error){
-					return err
-				}`,
-			)
-			expectSuccess(err)
-		},
-		func() {
-			_, err = NewFunction(
-				`func abcdef(a, b,c,d string) error{
-					return nil
-				}`,
-			)
-			expectSuccess(err)
-		},
-	}
+}
+func b() {
 
-	run(tests)
+}
+func c() {
+
+}
+`
+
+	raw := extract(threeFns)
+
+	if len(raw) != 3 {
+		t.Fail()
+	}
 }
 
-func Test_matchIdentifier(t *testing.T) {
-	var (
-		f *Function
-	)
-	tests := []func(){
-		func() {
-			f, _ = NewFunction(
-				`func b() (err error, key string) {
-					fmt.Println("str")
-				}
-				`,
-			)
+func Test_extract_expectNoneExtracted(t *testing.T) {
+	fns := `
+f c() {
 
-			if f.matchIdentifier() != "b" {
-				t.Fail()
-			}
-		},
-		func() {
-			f, _ = NewFunction(
-				`func a(s ...string) (err error) {
-					return err
-				}
-				`,
-			)
-			if f.matchIdentifier() != "a" {
-				t.Fail()
-			}
-		},
-		func() {
-			f, _ = NewFunction(
-				`func c (a,b int) int {
-					return a+b
-				}`,
-			)
-			if f.matchIdentifier() != "c" {
-				t.Fail()
-			}
-		},
-		func() {
-			f, _ = NewFunction(
-				`func b () {}`,
-			)
-			if f.matchIdentifier() != "b" {
-				t.Fail()
-			}
-		},
+}
+`
+
+	raw := extract(fns)
+
+	if len(raw) != 0 {
+		t.Fail()
 	}
-	run(tests)
 }
 
-func run(funcs []func()) {
-	for _, f := range funcs {
-		f()
+func Test_extract_expectTwoExtracted(t *testing.T) {
+	fns := `
+func one(a,b,c string) string {
+	return ""
+}
+
+function hi(a string) string {
+	return a
+}
+
+func three(i int) int {
+	return i + i
+}
+`
+
+	raw := extract(fns)
+
+	if len(raw) != 2 {
+		t.Fail()
+	}
+}
+
+func Test_extract_expectOneExtracted(t *testing.T) {
+	fns := `
+func abc(i int) int {
+	return func() int{
+		return i
+	}()
+}
+`
+
+	raw := extract(fns)
+
+	if len(raw) != 1 {
+		t.Fail()
+	}
+}
+
+func Test_matchIdentifier_expectIdentified(t *testing.T) {
+	fns := `
+func abc(i int) int {
+	return func() int{
+		return i
+	}
+}
+`
+
+	id := matchIdentifier(fns)
+	if id != "abc" {
+		t.Fail()
+	}
+}
+
+func Test_matchIdentifier_expectNotIdentified(t *testing.T) {
+	fns := `
+func (i int) int {
+	return func() int{
+		return i
+	}
+}
+`
+
+	id := matchIdentifier(fns)
+	if id != "" {
+		t.Fail()
+	}
+}
+
+func Test_matchReturn_expectIdentified(t *testing.T) {
+	fns := `
+func abc(i int) int {
+	return func() int{
+		return i
+	}
+}
+`
+
+	returnVal := matchReturn(fns)
+	if returnVal != "int" {
+		t.Fail()
+	}
+}
+
+func Test_matchReturn_expectEmpty(t *testing.T) {
+	fns := `
+func (i int) {
+	return func() int{
+		return i
+	}
+}
+`
+
+	returnVal := matchReturn(fns)
+	if returnVal != "" {
+		t.Fail()
+	}
+}
+
+func Test_firstMatchExpectFound(t *testing.T) {
+	matches := [][]string{
+		[]string{"a"},
+	}
+
+	match := firstMatch(matches)
+	if match != "a" {
+		t.Fail()
+	}
+}
+
+func Test_firstMatchExpectEmpty(t *testing.T) {
+	matches := [][]string{}
+
+	match := firstMatch(matches)
+	if match != "" {
+		t.Fail()
+	}
+}
+
+func Test_matchParamsExpectFound(t *testing.T) {
+	fns := `
+func (i int) {
+	return func() int{
+		return i
+	}
+}
+`
+
+	param := matchParams(fns)
+	if param != "i int" {
+		t.Fail()
+	}
+
+	fns = `
+func (i ...int) {
+	return func() int{
+		return i
+	}
+}
+`
+	param = matchParams(fns)
+	if param != "i ...int" {
+		t.Fail()
+	}
+}
+
+func Test_matchParamsExpectNone(t *testing.T) {
+	fns := `
+func () {
+	return func() int{
+		return i
+	}
+}
+`
+
+	param := matchParams(fns)
+	if param != "" {
+		t.Fail()
+	}
+}
+func Test_getMatchExpectFound(t *testing.T) {
+	matches := [][]string{
+		[]string{"asbc", "1992"},
+		[]string{"asbcasdfasdf"},
+	}
+
+	match := getMatch(0, 0, matches)
+	if match != "asbc" {
+		t.Fail()
+	}
+
+	match = getMatch(0, 1, matches)
+	if match != "1992" {
+		t.Fail()
+	}
+	match = getMatch(1, 1, matches)
+	if match != "" {
+		t.Fail()
+	}
+}
+
+func Test_getMatchExpectExpectEmpty(t *testing.T) {
+	matches := [][]string{
+		[]string{"asbc", "1992"},
+		[]string{"asbcasdfasdf"},
+	}
+
+	match := getMatch(1, 1, matches)
+	if match != "" {
+		t.Fail()
 	}
 }

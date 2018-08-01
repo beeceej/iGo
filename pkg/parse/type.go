@@ -1,13 +1,14 @@
 package parse
 
+// T is a constant identifier for concepts in Go
 type T int
 
 const (
-	// Fn represents a parse.Function
-	Fn T = iota
+	// Tfunction represents a parse.Function
+	Tfunction T = iota
 
-	// Exprsn represents a parse.Expression
-	Exprsn
+	// Texpression represents a parse.Expression
+	Texpression
 )
 
 // Classifier allows types to identify themselves

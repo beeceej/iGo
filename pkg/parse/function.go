@@ -1,25 +1,30 @@
 package parse
 
 import (
-	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 )
 
 const (
+	// holds double duty for classifying, and extracting functions from raw text
 	isFunctionExpr regexpType = iota
 	identifierExpr
 	argsExpr
 	returnExpr
 )
 
+var expressions = map[regexpType]*regexp.Regexp{
+	isFunctionExpr: regexp.MustCompile(`func \(?.*\)?\{\n?(.*|\s|\S)*?(\})`),
+	identifierExpr: regexp.MustCompile(`(func .* \(|func .*?)\(`),
+	argsExpr:       regexp.MustCompile(`\((.*?)\)`),
+	returnExpr:     regexp.MustCompile(`\) .* {`),
+}
+
 type regexpType int
-type exprMap map[regexpType]*regexp.Regexp
 
-// Function is the struct necesary to parse a function
+// Function is the in memory representation of a function,
 type Function struct {
-	exprMap
-
 	// Raw, the raw input which was determined to be a function
 	Raw string
 
@@ -29,96 +34,115 @@ type Function struct {
 	// Identifier would = a
 	Identifier string
 
-	// Args is a raw string which identifies the parameters of the function
-	Args string
+	// Params is a raw string which identifies the parameters of the function
+	Params string
 
 	// Return is the return signature of the function
 	Return string
 }
 
-// NewFunction returns a function with the raw text
+// Functions returns a function with the raw text
 // This will return either a reference to a Function object, or an error
 // An error here does not mean there is anything wrong with the input,
 // Just that it could not be recognized as a function.
-func NewFunction(raw string) (fns []*Function, err error) {
-	f := &Function{
-		Raw: raw,
-		exprMap: map[regexpType]*regexp.Regexp{
-			isFunctionExpr: regexp.MustCompile(`func \(?.*\)?\{\n?[.*?|[\S\s]*?\}`),
-			identifierExpr: regexp.MustCompile(`(func .* \(|func .*?)\(`),
-			argsExpr:       regexp.MustCompile(`\((.*?)\)`),
-			returnExpr:     regexp.MustCompile(`\) .* {`),
-		},
+func Functions(raw string) (fns []*Function) {
+	var rawFns []string
+	if rawFns = extract(raw); len(rawFns) == 0 {
+		return []*Function{}
 	}
 
-	var fnsRaw []string
-
-	if fnsRaw, err = f.matchFunctions(); err == nil {
-		for _, rawFn := range fnsRaw {
-			tmp, err := newFunction(rawFn)
-			if err != nil {
-				return fns, errors.New("not a fn")
-			}
-			if tmp != nil {
-				fns = append(fns, tmp)
-			}
-		}
-	} else {
-		return nil, errors.New("No functions found")
+	for _, pFun := range rawFns {
+		fns = append(fns, newFn(pFun))
 	}
 
-	return fns, nil
+	return fns
 }
 
-func newFunction(raw string) (*Function, error) {
-	f := &Function{
-		Raw: raw,
-		exprMap: map[regexpType]*regexp.Regexp{
-			isFunctionExpr: regexp.MustCompile(`func \(?.*\)?\{\n?[.*?|[\S\s]*?\}`),
-			identifierExpr: regexp.MustCompile(`(func .* \(|func .*?)\(`),
-			argsExpr:       regexp.MustCompile(`\((.*?)\)`),
-			returnExpr:     regexp.MustCompile(`\) .* {`),
-		},
+func newFn(raw string) (f *Function) {
+	f = &Function{
+		Raw:        raw,
+		Identifier: matchIdentifier(raw),
+		Params:     matchParams(raw),
+		Return:     matchReturn(raw),
 	}
-	f.Identifier = f.matchIdentifier()
-	f.Args = f.matchArgs()
-	f.Return = f.matchReturn()
-	return f, nil
-}
-func (f *Function) matchIdentifier() string {
-	rawIDMatch := f.exprMap[identifierExpr].FindAllStringSubmatch(f.Raw, -1)[0][1]
 
+	return f
+}
+
+func matchIdentifier(raw string) string {
+	rawIDMatch := expressions[identifierExpr].FindAllStringSubmatch(raw, -1)[0][1]
 	// Can probably do a fancy look-around to not pull `func` out, but this is easier
 	idWithoutFunc := strings.Replace(rawIDMatch, "func", "", -1)
 	return strings.Trim(idWithoutFunc, " ")
 }
 
-func (f *Function) matchArgs() string {
-	rawArgsMatch := f.exprMap[argsExpr].FindAllStringSubmatch(f.Raw, -1)
-
-	return rawArgsMatch[0][1]
+func matchParams(raw string) string {
+	rawParamMatch := expressions[argsExpr].FindAllStringSubmatch(raw, -1)
+	return getMatch(0, 1, rawParamMatch)
 }
 
-func (f *Function) matchReturn() string {
-	rawReturnMatch := f.exprMap[returnExpr].FindAllStringSubmatch(f.Raw, -1)
-	if len(rawReturnMatch) == 0 {
+func matchReturn(raw string) string {
+	rmOpenBrace := func(raw string) string {
+		return strings.Replace(raw, "{", "", -1)
+	}
+	rmCloseParen := func(raw string) string {
+		return strings.Replace(raw, ")", "", -1)
+	}
+	rawReturnMatches := expressions[returnExpr].FindAllStringSubmatch(raw, -1)
+	if len(rawReturnMatches) == 0 {
 		return ""
 	}
-	return strings.Trim(strings.Replace(strings.Replace(rawReturnMatch[0][0], "{", "", -1), ")", "", -1), " ")
+	rawReturn := firstMatch(rawReturnMatches)
+	return strings.Trim(rmCloseParen(rmOpenBrace(rawReturn)), " ")
 }
 
-func (f *Function) matchFunctions() (rawFns []string, err error) {
-	if !f.exprMap[isFunctionExpr].MatchString(f.Raw) {
-		return rawFns, errors.New("Not a function")
+func extract(raw string) (rawFns []string) {
+	if !expressions[isFunctionExpr].MatchString(raw) {
+		return []string{}
 	}
-	matches := f.exprMap[isFunctionExpr].FindAllStringSubmatch(f.Raw, -1)
+	matches := expressions[isFunctionExpr].FindAllStringSubmatch(raw, -1)
 	for _, match := range matches {
-		rawFns = append(rawFns, match[0])
+		lastBracket := match[1] // Need to clean this expression up to cleanly extract the last bracket
+		rawFns = append(rawFns, match[0]+lastBracket)
 	}
-	return rawFns, err
+
+	return rawFns
+}
+
+// firstMatch will return the first match, of the first capture group if it exists,
+// if it doesn't exist it will return an empty string
+// match[i] will give the capture groups associated with the i'th match,
+// match[i][j] will give the j'th capture group associated with the i'th match,
+func firstMatch(matches [][]string) (match string) {
+	if len(matches) != 0 && len(matches[0]) != 0 {
+		match = matches[0][0]
+	}
+	return match
+}
+
+// getMatch will return empty string if i,j is not found in the matches slice
+// or it will return the matches/groups at matches[i][j]
+func getMatch(i, j int, matches [][]string) (match string) {
+	if len(matches) <= i {
+		match = ""
+	} else if len(matches[i]) <= j {
+		match = ""
+	} else {
+		match = matches[i][j]
+	}
+	return match
 }
 
 // Type is an identifier for the Function type
 func (f Function) Type() T {
-	return Fn
+	return Tfunction
+}
+
+func (f Function) String() (str string) {
+	if f.Return == "" {
+		str = fmt.Sprintf("%s :: Function (%s) -> ()\n", f.Identifier, f.Params)
+	} else {
+		str = fmt.Sprintf("%s :: Function (%s) -> %s\n", f.Identifier, f.Params, f.Return)
+	}
+	return str
 }
