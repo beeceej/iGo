@@ -4,16 +4,75 @@ import (
 	"testing"
 )
 
+func Test_extract_a_bunch_of_combinations(t *testing.T) {
+	fns := `
+func a     () string {
+	return ""
+}
+func b() int{
+	return 1
+}
+func c() string{
+	return "asdf"
+}
+
+func abcdefg() (string str, err error) (abc str, cde err){
+	return ""
+}
+
+func nnn() (string str, err ...error) (str, int){
+	return str, int
+}
+
+func b() int{
+	return 1
+}
+func c() string{
+	return "asdf"
+}`
+
+	fnSlice := extract(fns)
+
+	if len(fnSlice) != 7 {
+		t.Fail()
+	}
+
+}
+
+func Test_extract_expectFunctionParsedCorrect(t *testing.T) {
+	fnRaw := `
+func a     () string {
+	return ""
+}
+`
+	fnSlice := extract(fnRaw)
+	if fnSlice[0].Body != `return ""` {
+		t.Fail()
+	}
+	if fnSlice[0].Identifier != `a` {
+		t.Fail()
+	}
+
+	if fnSlice[0].Params != `` {
+		t.Fail()
+	}
+
+	if fnSlice[0].Return != `string` {
+		t.Fail()
+	}
+}
+
 func Test_extract_expectThreeExtracted(t *testing.T) {
+
 	threeFns := `
-func a() {
-
+func a() string {
+	return ""
 }
-func b() {
-
+func b() int{
+	return 1
 }
-func c() {
-
+func c(s string, b string) string{
+	return c + b
 }
 `
 
