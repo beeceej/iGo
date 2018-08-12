@@ -8,17 +8,24 @@ import (
 
 const (
 	// holds double duty for classifying, and extracting functions from raw text
-	isFunctionExpr regexpType = iota
+	oneExprToRuleThemAll regexpType = iota
+	isFunctionExpr
 	identifierExpr
 	argsExpr
 	returnExpr
+
+	identifier = 2
+	parameters = 3
+	returnType = 4
+	body       = 6
 )
 
 var expressions = map[regexpType]*regexp.Regexp{
-	isFunctionExpr: regexp.MustCompile(`func \(?.*\)?\{\n?(.*|\s|\S)*?(\})`),
-	identifierExpr: regexp.MustCompile(`(func .* \(|func .*?)\(`),
-	argsExpr:       regexp.MustCompile(`\((.*?)\)`),
-	returnExpr:     regexp.MustCompile(`\) .* {`),
+	oneExprToRuleThemAll: regexp.MustCompile(`(?m)(func (.+?)(\(.+?\,|\(.+?)*\)((\(.+?\,|\(.+?)+\)|.*)\{([\s\Sa-zA-Z1-9]*?(^}|(\}$\}\s\S))))`),
+	isFunctionExpr:       regexp.MustCompile(`func \(?.*\)?\{\n?(.*|\s|\S)*?(\})`),
+	identifierExpr:       regexp.MustCompile(`(func .* \(|func .*?)\(`),
+	argsExpr:             regexp.MustCompile(`\((.*?)\)`),
+	returnExpr:           regexp.MustCompile(`\) .* {`),
 }
 
 type regexpType int
@@ -39,6 +46,9 @@ type Function struct {
 
 	// Return is the return signature of the function
 	Return string
+
+	// Body is everything which is contained in the function
+	Body string
 }
 
 // Functions returns a function with the raw text
@@ -46,13 +56,8 @@ type Function struct {
 // An error here does not mean there is anything wrong with the input,
 // Just that it could not be recognized as a function.
 func Functions(raw string) (fns []*Function) {
-	var rawFns []string
-	if rawFns = extract(raw); len(rawFns) == 0 {
+	if fns = extract(raw); len(fns) == 0 {
 		return []*Function{}
-	}
-
-	for _, pFun := range rawFns {
-		fns = append(fns, newFn(pFun))
 	}
 
 	return fns
@@ -96,17 +101,22 @@ func matchReturn(raw string) string {
 	return strings.Trim(rmCloseParen(rmOpenBrace(rawReturn)), " ")
 }
 
-func extract(raw string) (rawFns []string) {
-	if !expressions[isFunctionExpr].MatchString(raw) {
-		return []string{}
+func extract(raw string) (fns []*Function) {
+	matches := expressions[oneExprToRuleThemAll].FindAllStringSubmatch(raw, -1)
+	if len(matches) == 0 {
+		return []*Function{}
 	}
-	matches := expressions[isFunctionExpr].FindAllStringSubmatch(raw, -1)
-	for _, match := range matches {
-		lastBracket := match[1] // Need to clean this expression up to cleanly extract the last bracket
-		rawFns = append(rawFns, match[0]+lastBracket)
+	for index := range matches {
+		fns = append(fns, &Function{
+			Identifier: strings.TrimSpace(strings.Replace(matches[index][identifier], "(", "", -1)),
+			Params:     strings.TrimSpace(strings.Replace(matches[index][parameters], "(", "", -1)),
+			Return:     strings.TrimSpace(matches[index][returnType]),
+			Body:       strings.TrimSpace(strings.Replace(matches[index][body], "}", "", -1)),
+			Raw:        raw,
+		})
 	}
 
-	return rawFns
+	return fns
 }
 
 // firstMatch will return the first match, of the first capture group if it exists,
