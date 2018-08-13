@@ -1,6 +1,7 @@
 # iGo - a Go interpreter, written in Go
 
 [![Build Status](https://travis-ci.com/beeceej/blog.beeceej.com.svg?branch=master)](https://travis-ci.com/beeceej/blog.beeceej.com)
+[![Go Report Card](https://goreportcard.com/badge/github.com/beeceej/iGo)](https://goreportcard.com/report/github.com/beeceej/iGo)
 
 ![iGo-Demo](https://static.beeceej.com/iGoDemo.gif)
 
