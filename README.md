@@ -1,4 +1,4 @@
-# iGo - a Golang interpreter, written in Go
+# iGo - a Go interpreter, written in Go
 
 [![Build Status](https://travis-ci.com/beeceej/blog.beeceej.com.svg?branch=master)](https://travis-ci.com/beeceej/blog.beeceej.com)
 
