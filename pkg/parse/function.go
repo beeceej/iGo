@@ -106,6 +106,7 @@ func extract(raw string) (fns []*Function) {
 	if len(matches) == 0 {
 		return []*Function{}
 	}
+
 	for index := range matches {
 		fns = append(fns, &Function{
 			Identifier: strings.TrimSpace(strings.Replace(matches[index][identifier], "(", "", -1)),

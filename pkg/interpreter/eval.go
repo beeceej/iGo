@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
+	"strings"
 	"text/template"
 )
 
@@ -29,7 +29,7 @@ type EvalData struct {
 	F []string
 }
 
-var path = filepath.Join(os.Getenv("PWD"), "cmd/iGoBin/exe.go")
+const path = "/tmp/igo/main.go"
 
 // Eval will evaluate the text
 func (i *Interpreter) Eval(text string) {
@@ -52,7 +52,7 @@ func (i *Interpreter) Eval(text string) {
 		fmt.Println(err.Error())
 	}
 
-	cmd := exec.Command(filepath.Join("goimports"), "-w", path)
+	cmd := exec.Command("goimports", "-w", path)
 	_, err = cmd.Output()
 
 	if err != nil {
@@ -61,13 +61,24 @@ func (i *Interpreter) Eval(text string) {
 	}
 	f.Sync()
 
-	cmd = exec.Command("go", "run", path)
-	b, err := cmd.Output()
+	cmd = exec.Command("go", "build", "-o", path, path)
+	b, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println("Error calling go run", err.Error())
+		fmt.Println(string(b))
+
+		lookup := strings.TrimFunc(ed.M, func(r rune) bool {
+			return r == ')' || r == '('
+		})
+		fmt.Println(i.Functions[lookup].Raw)
+		return
+	}
+
+	cmd = exec.Command(path)
+	b, err = cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("Error exeucting", err.Error())
 	}
 
 	fmt.Println(fmt.Sprintf(">> %s", string(b)))
 	f.Sync()
-	os.Remove(path)
 }
