@@ -153,7 +153,7 @@ func (f Function) String() (str string) {
 	if f.Return == "" {
 		str = fmt.Sprintf("%s :: Function (%s) -> ()\n", f.Identifier, f.Params)
 	} else {
-		str = fmt.Sprintf("%s :: Function (%s) -> %s\n", f.Identifier, f.Params, f.Return)
+		str = fmt.Sprintf("%s :: Function (%s) -> (%s)\n", f.Identifier, f.Params, f.Return)
 	}
 	return str
 }

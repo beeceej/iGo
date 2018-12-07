@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/beeceej/iGo/pkg/interpreter"
-	"github.com/davecgh/go-spew/spew"
 )
 
 func main() {
@@ -26,6 +25,5 @@ func main() {
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", *port), nil); err != nil {
 		fmt.Println(err.Error())
-		spew.Dump(i)
 	}
 }

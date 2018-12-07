@@ -2,8 +2,6 @@ package interpreter
 
 import (
 	"testing"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 func TestThing(t *testing.T) {
@@ -15,6 +13,5 @@ func TestThing(t *testing.T) {
 }`
 
 	i.Interpret(str)
-	spew.Dump(i.Functions)
 	i.Interpret(`sayHi()`)
 }
