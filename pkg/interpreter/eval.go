@@ -48,21 +48,23 @@ func (i *Interpreter) Eval(text string) {
 		M: text,
 		F: fns,
 	}
+
 	if err := t.Execute(f, ed); err != nil {
 		fmt.Println(err.Error())
 	}
 
 	cmd := exec.Command("goimports", "-w", path)
-	_, err = cmd.Output()
+	b, err := cmd.Output()
 
 	if err != nil {
 		fmt.Println("Error calling goimports", err.Error())
+		fmt.Println(string(b))
 		return
 	}
 	f.Sync()
 
 	cmd = exec.Command("go", "build", "-o", path, path)
-	b, err := cmd.CombinedOutput()
+	b, err = cmd.CombinedOutput()
 	if err != nil {
 		fmt.Println(string(b))
 
@@ -76,7 +78,7 @@ func (i *Interpreter) Eval(text string) {
 	cmd = exec.Command(path)
 	b, err = cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println("Error exeucting", err.Error())
+		fmt.Println("Error executing", err.Error())
 	}
 
 	fmt.Println(fmt.Sprintf(">> %s", string(b)))

@@ -23,6 +23,7 @@ func (i *Interpreter) Interpret(text string) {
 	}
 	i.History = append(i.History, text)
 	t := i.classify(text)
+	// spew.Dump(t)
 	for _, tv := range t {
 		switch v := tv.(type) {
 		case *parse.Function:
@@ -39,10 +40,16 @@ func (i *Interpreter) Interpret(text string) {
 
 func (i *Interpreter) classify(text string) []parse.Classifier {
 	var t []parse.Classifier
-	fns := parse.Functions(text)
+	p := &parse.ASTParse{
+		Raw: text,
+	}
+	p.Parse()
+
+	fns := p.Functions
 	if len(fns) == 0 {
 		t = []parse.Classifier{&parse.Expression{Raw: text}}
 	}
+
 	for _, fi := range fns {
 		t = append(t, fi)
 	}

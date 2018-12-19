@@ -8,7 +8,6 @@ import (
 	"go/printer"
 	"go/token"
 	"log"
-	"os"
 	"regexp"
 	"strings"
 )
@@ -24,13 +23,26 @@ type ASTParse struct {
 	root ast.Node
 }
 
+type node struct {
+	ast.Node
+}
+
+func (n *node) asString() (string, error) {
+	var b *bytes.Buffer
+	err := printer.Fprint(b, nil, n)
+	if err != nil {
+		return "", err
+	}
+
+	return b.String(), nil
+}
+
 // Parse is
 func (a *ASTParse) Parse() {
 	a.Setup()
 	ast.Inspect(a.root, func(n ast.Node) bool {
 		err := ifFunctionDeclaration(
 			compose(
-				a.print,
 				a.ParseFn,
 			), n)
 		if err != nil {
@@ -66,15 +78,16 @@ func (a *ASTParse) ParseFn(n *ast.FuncDecl) error {
 		params          string
 		returnSignature string
 		body            string
-		buffer          bytes.Buffer
+		err             error
 	)
 	identifier = n.Name.Name
 	params = a.getFunctionParameters(n)
 
 	returnSignature = a.getFunctionReturnSignature(n)
 
-	printer.Fprint(&buffer, a.fset, n.Body)
-	body = buffer.String()
+	if body, err = (&node{n.Body}).asString(); err != nil {
+		return err
+	}
 
 	a.Functions = append(a.Functions, &Function{
 		Identifier: identifier,
@@ -112,14 +125,17 @@ func (a *ASTParse) getFunctionParameters(n *ast.FuncDecl) string {
 func (a *ASTParse) getFunctionReturnSignature(n *ast.FuncDecl) string {
 	var (
 		returns []string
-		buffer  bytes.Buffer
+		fnRaw   string
+		err     error
 	)
 	if n.Type.Results == nil {
 		return ""
 	}
 	offset := n.Pos()
-	printer.Fprint(&buffer, a.fset, n)
-	fnRaw := buffer.String()
+
+	if fnRaw, err = (&node{n}).asString(); err != nil {
+		fnRaw = ""
+	}
 
 	for _, rGroup := range n.Type.Results.List {
 		p := rGroup.Type.Pos() - offset
@@ -144,9 +160,4 @@ func paramGroup(idents []*ast.Ident, t string) string {
 	}
 
 	return fmt.Sprint(strings.Join(paramNames, ", "), " ", t)
-}
-
-func (a *ASTParse) print(n *ast.FuncDecl) error {
-	printer.Fprint(os.Stdout, a.fset, n)
-	return nil
 }

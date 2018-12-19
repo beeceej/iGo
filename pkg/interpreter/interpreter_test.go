@@ -5,10 +5,10 @@ import (
 )
 
 func TestThing(t *testing.T) {
-	t.Skip("More of an integration test for now")
-	i := Interpreter{}
+
+	i := &Interpreter{}
 	str := `
-"func sayHi() { 
+func sayHi() { 
 	fmt.Println("Hello World, from iGo") 
 }`
 

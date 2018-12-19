@@ -1,6 +1,8 @@
 package parse
 
-import "go/ast"
+import (
+	"go/ast"
+)
 
 type funcDeclarationHandler func(*ast.FuncDecl) error
 type funcLiteralHandler func(*ast.FuncLit) error
