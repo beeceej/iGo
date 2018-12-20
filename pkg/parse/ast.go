@@ -14,6 +14,8 @@ import (
 
 var hasPackageStatementRegexp = regexp.MustCompile("^package.*")
 
+const dummyFileName = "dummy"
+
 // ASTParse is
 type ASTParse struct {
 	Raw       string
@@ -23,6 +25,9 @@ type ASTParse struct {
 	root ast.Node
 }
 
+// this acts as a wrapper type so
+// I can wrap useful functionality like
+// turning a ast.Node into a string into a reusable function call
 type node struct {
 	ast.Node
 	fset *token.FileSet
@@ -30,31 +35,29 @@ type node struct {
 
 func (n node) asString() (string, error) {
 	var b bytes.Buffer
-	err := printer.Fprint(&b, n.fset, n.Node)
-	if err != nil {
+	if err := printer.Fprint(&b, n.fset, n.Node); err != nil {
 		return "", err
 	}
 
 	return b.String(), nil
 }
 
-// Parse is
+// Parse takes an ast and parses out the data necessary to run the interpreter
 func (a *ASTParse) Parse() {
 	a.Setup()
-	ast.Inspect(a.root, func(n ast.Node) bool {
-		err := ifFunctionDeclaration(
-			compose(
-				a.ParseFn,
-			), n)
-		if err != nil {
+	ast.Inspect(a.root, func(n ast.Node) (result bool) {
+		if err := ifFunctionDeclaration(a.ParseFn, n); err != nil {
 			log.Println(err.Error())
-			return false
+			result = false
+		} else {
+			result = true
 		}
-		return true
+		return result
 	})
 }
 
-// Setup is
+// Setup sets up the ASTParse type, performing housekeeping
+// so that it is ready for parsing
 func (a *ASTParse) Setup() {
 	if !hasPackageStatementRegexp.MatchString(a.Raw) {
 		const withPkg = `package _
@@ -64,7 +67,8 @@ func (a *ASTParse) Setup() {
 	a.Functions = []*Function{}
 
 	fset := token.NewFileSet()
-	node, err := parser.ParseFile(fset, "/tmp/tmp.go", a.Raw, parser.AllErrors)
+
+	node, err := parser.ParseFile(fset, dummyFileName, a.Raw, parser.AllErrors)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -81,6 +85,7 @@ func (a *ASTParse) ParseFn(n *ast.FuncDecl) error {
 		body            string
 		err             error
 	)
+
 	identifier = n.Name.Name
 	params = a.getFunctionParameters(n)
 
@@ -145,7 +150,6 @@ func (a *ASTParse) getFunctionReturnSignature(n *ast.FuncDecl) string {
 	}
 
 	return strings.Join(returns, ", ")
-
 }
 
 func paramGroup(idents []*ast.Ident, t string) string {

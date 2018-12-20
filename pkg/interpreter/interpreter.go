@@ -46,6 +46,7 @@ func (i *Interpreter) classify(text string) []parse.Classifier {
 	p.Parse()
 
 	fns := p.Functions
+	fmt.Println(len(fns))
 	if len(fns) == 0 {
 		t = []parse.Classifier{&parse.Expression{Raw: text}}
 	}
