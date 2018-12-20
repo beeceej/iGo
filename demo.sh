@@ -12,7 +12,7 @@ EOF
 
 readonly sayHiExpression=$(cat <<EOF
 {
-    "text": "sayHi()"
+    "raw": "sayHi()"
 }
 EOF
 )

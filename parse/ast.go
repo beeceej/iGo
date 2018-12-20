@@ -7,7 +7,6 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
-	"log"
 	"regexp"
 	"strings"
 )
@@ -19,6 +18,7 @@ const dummyFileName = "dummy"
 // ASTParse is
 type ASTParse struct {
 	Raw       string
+	Parsed    string
 	Functions []*Function
 
 	fset *token.FileSet
@@ -44,36 +44,35 @@ func (n node) asString() (string, error) {
 
 // Parse takes an ast and parses out the data necessary to run the interpreter
 func (a *ASTParse) Parse() {
-	a.Setup()
-	ast.Inspect(a.root, func(n ast.Node) (result bool) {
-		if err := ifFunctionDeclaration(a.ParseFn, n); err != nil {
-			log.Println(err.Error())
-			result = false
-		} else {
-			result = true
-		}
-		return result
-	})
+	if canParse := a.Setup(); canParse {
+		ast.Inspect(a.root, func(n ast.Node) (result bool) {
+			if err := ifFunctionDeclaration(a.ParseFn, n); err != nil {
+				result = false
+			} else {
+				result = true
+			}
+			return result
+		})
+	}
 }
 
 // Setup sets up the ASTParse type, performing housekeeping
 // so that it is ready for parsing
-func (a *ASTParse) Setup() {
+func (a *ASTParse) Setup() (canParse bool) {
 	if !hasPackageStatementRegexp.MatchString(a.Raw) {
 		const withPkg = `package _
 		%s`
-		a.Raw = fmt.Sprintf(withPkg, a.Raw)
+		a.Parsed = fmt.Sprintf(withPkg, a.Raw)
 	}
 	a.Functions = []*Function{}
-
 	fset := token.NewFileSet()
-
-	node, err := parser.ParseFile(fset, dummyFileName, a.Raw, parser.AllErrors)
-	if err != nil {
-		log.Fatal(err)
+	node, err := parser.ParseFile(fset, dummyFileName, a.Parsed, parser.AllErrors)
+	if err == nil {
+		a.fset = fset
+		a.root = node
+		canParse = true
 	}
-	a.fset = fset
-	a.root = node
+	return canParse
 }
 
 // ParseFn is
@@ -102,6 +101,7 @@ func (a *ASTParse) ParseFn(n *ast.FuncDecl) error {
 		// not sure that's completely necessary just yet though
 		Body:   body,
 		Return: returnSignature,
+		Raw:    a.Raw,
 	})
 	return nil
 }

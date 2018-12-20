@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/beeceej/iGo/pkg/interpreter"
+	"github.com/beeceej/iGo/interpreter"
 )
 
 func main() {
