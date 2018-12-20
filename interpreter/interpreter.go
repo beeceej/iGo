@@ -3,7 +3,7 @@ package interpreter
 import (
 	"fmt"
 
-	"github.com/beeceej/iGo/pkg/parse"
+	"github.com/beeceej/iGo/parse"
 )
 
 // Interpreter houses the function references and input history
@@ -39,10 +39,15 @@ func (i *Interpreter) Interpret(text string) {
 
 func (i *Interpreter) classify(text string) []parse.Classifier {
 	var t []parse.Classifier
-	fns := parse.Functions(text)
+	p := &parse.ASTParse{
+		Raw: text,
+	}
+	p.Parse()
+	fns := p.Functions
 	if len(fns) == 0 {
 		t = []parse.Classifier{&parse.Expression{Raw: text}}
 	}
+
 	for _, fi := range fns {
 		t = append(t, fi)
 	}

@@ -5,21 +5,21 @@
 # $ ./demo.sh
 readonly sayHiFn=$(cat <<EOF
 {
-    "text": "func sayHi() {\\n\\tfmt.Println(\"Hello World, from iGo\")\\n}\"}"
+    "raw": "func sayHi() {\\n\\tfmt.Println(\"Hello World, from iGo\")\\n}"
 }
 EOF
 )
 
 readonly sayHiExpression=$(cat <<EOF
 {
-    "text": "sayHi()"
+    "raw": "sayHi()"
 }
 EOF
 )
 
 main() {
-  curl -XPOST "http://localhost:9999/interpret" -d "$sayHiFn"
-  curl -XPOST "http://localhost:9999/interpret" -d "$sayHiExpression"
+  curl -XPOST "localhost:9999/interpret" -d "$sayHiFn"
+  curl -XPOST "localhost:9999/interpret" -d "$sayHiExpression"
 }
 
 main

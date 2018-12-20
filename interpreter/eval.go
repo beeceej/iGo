@@ -6,13 +6,15 @@ package interpreter
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"text/template"
 )
 
-const tmpl = `package main
+var mainTemplate = template.Must(template.New("_").Parse(`package main
 
 func main() {
 	{{ .M }}
@@ -21,7 +23,7 @@ func main() {
 {{range .F }}
 	{{.}}
 {{end}}
-`
+`))
 
 // EvalData is
 type EvalData struct {
@@ -34,7 +36,11 @@ const path = "/tmp/igo/main.go"
 // Eval will evaluate the text
 func (i *Interpreter) Eval(text string) {
 	var ed *EvalData
-	t := template.Must(template.New("mainTmpl").Parse(tmpl))
+
+	if !pathExists(path) {
+		dir, _ := filepath.Split(path)
+		os.MkdirAll(dir, os.ModePerm)
+	}
 	f, err := os.Create(path)
 	if err != nil {
 		panic(err.Error())
@@ -48,21 +54,23 @@ func (i *Interpreter) Eval(text string) {
 		M: text,
 		F: fns,
 	}
-	if err := t.Execute(f, ed); err != nil {
+
+	if err := mainTemplate.Execute(f, ed); err != nil {
 		fmt.Println(err.Error())
 	}
 
 	cmd := exec.Command("goimports", "-w", path)
-	_, err = cmd.Output()
+	b, err := cmd.Output()
 
 	if err != nil {
 		fmt.Println("Error calling goimports", err.Error())
+		fmt.Println(string(b))
 		return
 	}
 	f.Sync()
 
 	cmd = exec.Command("go", "build", "-o", path, path)
-	b, err := cmd.CombinedOutput()
+	b, err = cmd.CombinedOutput()
 	if err != nil {
 		fmt.Println(string(b))
 
@@ -76,9 +84,19 @@ func (i *Interpreter) Eval(text string) {
 	cmd = exec.Command(path)
 	b, err = cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println("Error exeucting", err.Error())
+		fmt.Println("Error executing", err.Error())
 	}
 
 	fmt.Println(fmt.Sprintf(">> %s", string(b)))
 	f.Sync()
+}
+
+func pathExists(path string) bool {
+	pathPart, _ := filepath.Split(path)
+	info, err := ioutil.ReadDir(pathPart)
+
+	if err != nil {
+		return false
+	}
+	return len(info) > 0
 }
