@@ -25,11 +25,12 @@ type ASTParse struct {
 
 type node struct {
 	ast.Node
+	fset *token.FileSet
 }
 
-func (n *node) asString() (string, error) {
-	var b *bytes.Buffer
-	err := printer.Fprint(b, nil, n)
+func (n node) asString() (string, error) {
+	var b bytes.Buffer
+	err := printer.Fprint(&b, n.fset, n.Node)
 	if err != nil {
 		return "", err
 	}
@@ -85,7 +86,7 @@ func (a *ASTParse) ParseFn(n *ast.FuncDecl) error {
 
 	returnSignature = a.getFunctionReturnSignature(n)
 
-	if body, err = (&node{n.Body}).asString(); err != nil {
+	if body, err = (node{n.Body, a.fset}).asString(); err != nil {
 		return err
 	}
 
@@ -133,7 +134,7 @@ func (a *ASTParse) getFunctionReturnSignature(n *ast.FuncDecl) string {
 	}
 	offset := n.Pos()
 
-	if fnRaw, err = (&node{n}).asString(); err != nil {
+	if fnRaw, err = (node{n, a.fset}).asString(); err != nil {
 		fnRaw = ""
 	}
 
