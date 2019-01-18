@@ -9,3 +9,7 @@ type Expression struct {
 func (e *Expression) Type() T {
 	return Texpression
 }
+
+func (e Expression) String() string {
+	return firstChar.ReplaceAllString(e.Raw, "... ")
+}

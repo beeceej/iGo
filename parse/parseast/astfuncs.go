@@ -1,4 +1,4 @@
-package parse
+package parseast
 
 import (
 	"go/ast"

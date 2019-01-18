@@ -1,4 +1,4 @@
-package parse
+package parseast
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 )
 
 func Test_ast(t *testing.T) {
-	a := &ASTParse{Raw: `
+	a := &Parser{Raw: `
 	type A struct {}
 	func (a A) DoIt(a, c string, b []int) string {
 		return ""

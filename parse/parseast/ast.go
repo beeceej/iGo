@@ -1,6 +1,7 @@
-package parse
+package parseast
 
 import (
+	"github.com/beeceej/iGo/parse"
 	"bytes"
 	"fmt"
 	"go/ast"
@@ -15,11 +16,12 @@ var hasPackageStatementRegexp = regexp.MustCompile("^package.*")
 
 const dummyFileName = "dummy"
 
-// ASTParse is
-type ASTParse struct {
+// Parser is a structure which takes in Raw text,
+// and categorizes the text given to it based on the golang language spec.
+type Parser struct {
 	Raw       string
 	Parsed    string
-	Functions []*Function
+	Functions []*parse.Function
 
 	fset *token.FileSet
 	root ast.Node
@@ -43,7 +45,7 @@ func (n node) asString() (string, error) {
 }
 
 // Parse takes an ast and parses out the data necessary to run the interpreter
-func (a *ASTParse) Parse() {
+func (a *Parser) Parse() {
 	if canParse := a.Setup(); canParse {
 		ast.Inspect(a.root, func(n ast.Node) (result bool) {
 			if err := ifFunctionDeclaration(a.ParseFn, n); err != nil {
@@ -56,15 +58,15 @@ func (a *ASTParse) Parse() {
 	}
 }
 
-// Setup sets up the ASTParse type, performing housekeeping
+// Setup sets up the Parser type, performing housekeeping
 // so that it is ready for parsing
-func (a *ASTParse) Setup() (canParse bool) {
+func (a *Parser) Setup() (canParse bool) {
 	if !hasPackageStatementRegexp.MatchString(a.Raw) {
 		const withPkg = `package _
 		%s`
 		a.Parsed = fmt.Sprintf(withPkg, a.Raw)
 	}
-	a.Functions = []*Function{}
+	a.Functions = []*parse.Function{}
 	fset := token.NewFileSet()
 	node, err := parser.ParseFile(fset, dummyFileName, a.Parsed, parser.AllErrors)
 	if err == nil {
@@ -76,7 +78,7 @@ func (a *ASTParse) Setup() (canParse bool) {
 }
 
 // ParseFn is
-func (a *ASTParse) ParseFn(n *ast.FuncDecl) error {
+func (a *Parser) ParseFn(n *ast.FuncDecl) error {
 	var (
 		identifier      string
 		params          string
@@ -94,7 +96,7 @@ func (a *ASTParse) ParseFn(n *ast.FuncDecl) error {
 		return err
 	}
 
-	a.Functions = append(a.Functions, &Function{
+	a.Functions = append(a.Functions, &parse.Function{
 		Identifier: identifier,
 		Params:     params,
 		// This is actually an ast.Node in-itself, we could parse sub functions recursively,
@@ -106,7 +108,7 @@ func (a *ASTParse) ParseFn(n *ast.FuncDecl) error {
 	return nil
 }
 
-func (a *ASTParse) getFunctionParameters(n *ast.FuncDecl) string {
+func (a *Parser) getFunctionParameters(n *ast.FuncDecl) string {
 	var (
 		params []string
 		buffer bytes.Buffer
@@ -128,7 +130,7 @@ func (a *ASTParse) getFunctionParameters(n *ast.FuncDecl) string {
 	return strings.Join(params, ", ")
 }
 
-func (a *ASTParse) getFunctionReturnSignature(n *ast.FuncDecl) string {
+func (a *Parser) getFunctionReturnSignature(n *ast.FuncDecl) string {
 	var (
 		returns []string
 		fnRaw   string

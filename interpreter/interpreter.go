@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"github.com/beeceej/iGo/parse/parseast"
 	"fmt"
 
 	"github.com/beeceej/iGo/parse"
@@ -27,10 +28,10 @@ func (i *Interpreter) Interpret(text string) {
 		switch v := tv.(type) {
 		case *parse.Function:
 			i.Functions[v.Identifier] = v
-			fmt.Printf("# %s\n", v.String())
+			fmt.Printf("%s\n\n", v.String())
 			break
 		case *parse.Expression:
-			fmt.Printf(">> %s\n", text)
+			fmt.Printf("%s\n", v.String())
 			i.Eval(text)
 			break
 		}
@@ -39,7 +40,7 @@ func (i *Interpreter) Interpret(text string) {
 
 func (i *Interpreter) classify(text string) []parse.Classifier {
 	var t []parse.Classifier
-	p := &parse.ASTParse{
+	p := &parseast.Parser{
 		Raw: text,
 	}
 	p.Parse()
