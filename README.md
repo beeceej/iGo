@@ -15,7 +15,7 @@
 
 The interpreter will then parse your go code. And if possible evaluate the expression
 
-`$ curl -XPOST http://localhost:9999/interpret -d'{"text": $your_go_code}'`
+`$ curl -XPOST http://localhost:9999/interpret -d'{"raw": $your_go_code}'`
 
 ## Supported
 
