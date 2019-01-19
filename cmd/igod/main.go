@@ -7,10 +7,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/beeceej/iGo/igod/igodpb"
 	"github.com/beeceej/iGo/interpreter"
 )
 
 func main() {
+	_ = igodpb.DebugRequest{}
 	port := flag.String("port", "9999", "Port is the port the interpreter will run on")
 	i := interpreter.Interpreter{}
 	http.HandleFunc("/interpret", func(w http.ResponseWriter, r *http.Request) {
