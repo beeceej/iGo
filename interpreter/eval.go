@@ -86,8 +86,7 @@ func (i *Interpreter) Eval(text string) {
 	if err != nil {
 		fmt.Println("Error executing", err.Error())
 	}
-
-	fmt.Println(fmt.Sprintf(">> %s", string(b)))
+	fmt.Println(string(b))
 	f.Sync()
 }
 
