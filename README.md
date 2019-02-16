@@ -32,5 +32,4 @@ Follow the development of iGo here:
 
 [writing-a-go-interpreter-in-go](https://blog.beeceej.com/blog/writing-a-go-interpreter-in-go)
 
-
 [writing-a-go-interpreter-in-go-pt2](https://blog.beeceej.com/blog/writing-a-go-interpreter-in-go-pt2)
