@@ -28,4 +28,8 @@ The interpreter will then parse your go code. And if possible evaluate the expre
 
 Follow the development of iGo here:
 
-[https://blog.beeceej.com/blog/4](https://blog.beeceej.com/blog/4)
+
+
+[writing-a-go-interpreter-in-go](https://blog.beeceej.com/blog/writing-a-go-interpreter-in-go)
+
+[writing-a-go-interpreter-in-go-pt2](https://blog.beeceej.com/blog/writing-a-go-interpreter-in-go-pt2)
