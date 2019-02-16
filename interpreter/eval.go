@@ -34,7 +34,7 @@ type EvalData struct {
 const path = "/tmp/igo/main.go"
 
 // Eval will evaluate the text
-func (i *Interpreter) Eval(text string) {
+func (i *Interpreter) Eval(text string) string {
 	var ed *EvalData
 
 	if !pathExists(path) {
@@ -65,7 +65,7 @@ func (i *Interpreter) Eval(text string) {
 	if err != nil {
 		fmt.Println("Error calling goimports", err.Error())
 		fmt.Println(string(b))
-		return
+		return ""
 	}
 	f.Sync()
 
@@ -78,7 +78,7 @@ func (i *Interpreter) Eval(text string) {
 			return r == ')' || r == '('
 		})
 		fmt.Println(i.Functions[lookup].Raw)
-		return
+		return ""
 	}
 
 	cmd = exec.Command(path)
@@ -88,6 +88,7 @@ func (i *Interpreter) Eval(text string) {
 	}
 	fmt.Println(string(b))
 	f.Sync()
+	return string(b)
 }
 
 func pathExists(path string) bool {

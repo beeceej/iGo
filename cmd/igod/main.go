@@ -22,7 +22,11 @@ func main() {
 			Raw string `json:"raw"`
 		}
 		json.Unmarshal(b, &m)
-		i.Interpret(m.Raw)
+		result := i.Interpret(m.Raw)
+		rm := map[string]string{}
+		rm["raw"] = result
+		b, _ = json.Marshal(rm)
+		w.Write(b)
 	})
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", *port), nil); err != nil {

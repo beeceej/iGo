@@ -9,9 +9,28 @@
   pruneopts = "UT"
   revision = "347cf4a86c1cb8d262994d8ef5924d4576c5b331"
 
+[[projects]]
+  digest = "1:0356f3312c9bd1cbeda81505b7fd437501d8e778ab66998ef69f00d7f9b3a0d7"
+  name = "github.com/mattn/go-runewidth"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3ee7d812e62a0804a7d0a324e0249ca2db3476d3"
+  version = "v0.0.4"
+
+[[projects]]
+  branch = "master"
+  digest = "1:f3fc7efada7606d5abc88372e1f838ed897fa522077957070fbc2207a50d6faa"
+  name = "github.com/nsf/termbox-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0938b5187e61bb8c4dcac2b0a9cf4047d83784fc"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = ["github.com/golang/protobuf/proto"]
+  input-imports = [
+    "github.com/golang/protobuf/proto",
+    "github.com/nsf/termbox-go",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
