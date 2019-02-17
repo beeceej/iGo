@@ -2,7 +2,6 @@ package interpreter
 
 import (
 	"github.com/beeceej/iGo/parse/parseast"
-	"fmt"
 
 	"github.com/beeceej/iGo/parse"
 )
@@ -18,7 +17,7 @@ type Interpreter struct {
 // If it is a function it will store the reference of the Function in a map
 // If the text is classified as an expression, it will evaluate the expression,
 // using the function reference map if needed
-func (i *Interpreter) Interpret(text string) {
+func (i *Interpreter) Interpret(text string) string {
 	if i.Functions == nil {
 		i.Functions = make(map[string]*parse.Function)
 	}
@@ -28,14 +27,14 @@ func (i *Interpreter) Interpret(text string) {
 		switch v := tv.(type) {
 		case *parse.Function:
 			i.Functions[v.Identifier] = v
-			fmt.Printf("%s\n\n", v.String())
-			break
+			// fmt.Printf("%s\n\n", v.String())
+			return v.String()
 		case *parse.Expression:
-			fmt.Printf("%s\n", v.String())
-			i.Eval(text)
-			break
+			// fmt.Printf("%s\n", v.String())
+			return i.Eval(text)
 		}
 	}
+	return ""
 }
 
 func (i *Interpreter) classify(text string) []parse.Classifier {
