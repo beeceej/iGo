@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_package = "com.beeceej.igodpb";
+option go_package = "igopb";
+
+message InterpretRequest {
+  string in = 1;
+}
+
+message InterpretResponse {
+  Result result = 1;
+}
+
+message Result {
+  string evaluatedTo = 1;
+  string info = 2;
+}

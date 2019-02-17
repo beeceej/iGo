@@ -1,8 +1,6 @@
 package interpreter
 
 import (
-	"fmt"
-
 	"github.com/beeceej/iGo/parse/parseast"
 
 	"github.com/beeceej/iGo/parse"
@@ -29,10 +27,10 @@ func (i *Interpreter) Interpret(text string) string {
 		switch v := tv.(type) {
 		case *parse.Function:
 			i.Functions[v.Identifier] = v
-			fmt.Printf("%s\n\n", v.String())
-			break
+			// fmt.Printf("%s\n\n", v.String())
+			return v.String()
 		case *parse.Expression:
-			fmt.Printf("%s\n", v.String())
+			// fmt.Printf("%s\n", v.String())
 			return i.Eval(text)
 		}
 	}

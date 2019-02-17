@@ -1,6 +1,6 @@
 .PHONY: clean
 clean:
-	@rm -rf igod/igodpb/*
+	@rm -rf igopb/*
 
 .PHONY: generate
 generate:
@@ -9,8 +9,8 @@ generate:
 	@docker run -v ${PWD}:/defs namely/protoc-all \
 		-d ./proto \
 		-l go \
-		-o igod/igodpb  ; \
-		sudo chown -R "${USER}":"${USER}" igod/igodpb
+		-o igopb  ; \
+		sudo chown -R "${USER}":"${USER}" igopb
 
 .PHONY: test
 test:
