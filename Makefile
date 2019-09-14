@@ -1,16 +1,19 @@
 .PHONY: clean
 clean:
-	@rm -rf igo/igopb/*
+	@rm -rf igo/igopb/*.go
 
 .PHONY: generate
-generate:
-	@$(MAKE) -s clean
+generate: clean
 	@docker run \
 		--rm \
 		-v ${PWD}:/defs namely/protoc-all \
 		-d ./proto \
 		-l go \
-		-o igo/igopb  ; \
+		-o igo/igopb
+
+.PHONY: image
+image: clean
+	@docker build -t igo:$(TAG) .
 
 .PHONY: test
 test:

@@ -5,17 +5,18 @@
 
 ![iGo-Demo](https://static.beeceej.com/iGoDemo.gif)
 
-**VSCode Integration still in pre-alpha Development**
+## Docker Build
 
-## Usage
+```
+TAG=latest make image
+```
 
-`$ cd $path_to_iGo`
+## Docker Usage
+```
+λ docker run --rm -d -p 9999:9999 igo
+λ docker run --network host igo:latest "igoclient 'func hi() string { return \"Hello\"}'"
+```
 
-`$ go run cmd/interpreter/main.go` This will start up the interpreter server
-
-The interpreter will then parse your go code. And if possible evaluate the expression
-
-`$ curl -XPOST http://localhost:9999/interpret -d'{"raw": $your_go_code}'`
 
 ## Supported
 
