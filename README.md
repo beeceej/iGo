@@ -13,8 +13,8 @@ TAG=latest make image
 
 ## Docker Usage
 ```
-λ docker run --rm -d -p 9999:9999 igo
-λ docker run --network host igo:latest "igoclient 'func hi() string { return \"Hello\"}'"
+λ docker run --rm -d -p 9999:9999 beeceej/igo:latest
+λ docker run --network host beeceej/igo:latest "igoclient 'func hi() string { return \"Hello\"}'"
 ```
 
 

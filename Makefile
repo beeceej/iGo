@@ -13,7 +13,7 @@ generate: clean
 
 .PHONY: image
 image: clean
-	@docker build -t igo:$(TAG) .
+	@docker build -t beeceej/igo:$(TAG) .
 
 .PHONY: test
 test:
