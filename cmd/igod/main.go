@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/beeceej/iGo/igod"
-	"github.com/beeceej/iGo/interpreter"
+	"github.com/beeceej/iGo/igo/igod"
+	"github.com/beeceej/iGo/igo/interpreter"
 )
 
 func main() {

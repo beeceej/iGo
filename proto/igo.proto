@@ -1,10 +1,9 @@
 syntax = "proto3";
 
-option java_package = "com.beeceej.igodpb";
 option go_package = "igopb";
 
 message InterpretRequest {
-  string in = 1;
+  string input = 1;
 }
 
 message InterpretResponse {

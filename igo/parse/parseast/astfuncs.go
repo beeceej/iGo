@@ -4,9 +4,11 @@ import (
 	"go/ast"
 )
 
-type funcDeclarationHandler func(*ast.FuncDecl) error
-type funcLiteralHandler func(*ast.FuncLit) error
-type funcTypeHandler func(*ast.FuncType) error
+type (
+	funcDeclarationHandler func(*ast.FuncDecl) error
+	funcLiteralHandler     func(*ast.FuncLit) error
+	funcTypeHandler        func(*ast.FuncType) error
+)
 
 func ifFunctionDeclaration(h funcDeclarationHandler, n ast.Node) error {
 	if fnDecl, ok := n.(*ast.FuncDecl); ok {
@@ -29,7 +31,7 @@ func ifFunctionType(h funcTypeHandler, n ast.Node) error {
 	return nil
 }
 
-// compose declaration handlers into one function, generics who?
+// compose declaration handlers into one function?
 func compose(fns ...funcDeclarationHandler) funcDeclarationHandler {
 	return func(n *ast.FuncDecl) error {
 		for _, fn := range fns {

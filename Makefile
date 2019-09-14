@@ -1,6 +1,6 @@
 .PHONY: clean
 clean:
-	@rm -rf igopb/*
+	@rm -rf igo/igopb/*
 
 .PHONY: generate
 generate:
@@ -10,7 +10,7 @@ generate:
 		-v ${PWD}:/defs namely/protoc-all \
 		-d ./proto \
 		-l go \
-		-o igopb  ; \
+		-o igo/igopb  ; \
 
 .PHONY: test
 test:

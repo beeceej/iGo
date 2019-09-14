@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/beeceej/iGo/igoclient"
+	"github.com/beeceej/iGo/igo/igoclient"
 )
 
 type (

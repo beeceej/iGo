@@ -1,9 +1,8 @@
 package interpreter
 
 import (
-	"github.com/beeceej/iGo/parse/parseast"
-
-	"github.com/beeceej/iGo/parse"
+	"github.com/beeceej/iGo/igo/parse"
+	"github.com/beeceej/iGo/igo/parse/parseast"
 )
 
 // Interpreter houses the function references and input history
@@ -27,10 +26,8 @@ func (i *Interpreter) Interpret(text string) string {
 		switch v := tv.(type) {
 		case *parse.Function:
 			i.Functions[v.Identifier] = v
-			// fmt.Printf("%s\n\n", v.String())
 			return v.String()
 		case *parse.Expression:
-			// fmt.Printf("%s\n", v.String())
 			return i.Eval(text)
 		}
 	}

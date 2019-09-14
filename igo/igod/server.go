@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	igo "github.com/beeceej/iGo"
-	"github.com/beeceej/iGo/interpreter"
+	"github.com/beeceej/iGo/igo/igotypes"
+	"github.com/beeceej/iGo/igo/interpreter"
 )
 
 // Server is
@@ -34,16 +34,18 @@ func (s *Server) Run() {
 			}
 		}()
 
-		interpretRequest := new(igo.InterpretRequest)
-		if err := interpretRequest.FromProtoBytes(b); err != nil {
+		interpretRequest := new(igotypes.InterpretRequest)
+		if err := igotypes.Unmarshall(b, interpretRequest); err != nil {
 			log.Fatalln(err.Error())
 		}
 		result := s.Interpreter.Interpret(interpretRequest.Input)
-		res := new(igo.InterpretResponse)
-		res.Result = new(igo.InterpretResult)
-		res.Result.EvaluatedTo = "EvaluatedTo: " + result + "\n"
-		res.Result.Info = fmt.Sprintf("INFO: %s\n", result)
-		if b, err = res.ToProtoBytes(); err != nil {
+		response := &igotypes.InterpretResponse{
+			Result: igotypes.InterpretResult{
+				EvaluatedTo: "EvaluatedTo: " + result + "\n",
+				Info:        fmt.Sprintf("INFO: %s\n", result),
+			},
+		}
+		if b, err = igotypes.Marshall(response); err != nil {
 			log.Fatalln(err.Error())
 		}
 		w.Write(b)

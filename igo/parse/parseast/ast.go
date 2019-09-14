@@ -1,7 +1,6 @@
 package parseast
 
 import (
-	"github.com/beeceej/iGo/parse"
 	"bytes"
 	"fmt"
 	"go/ast"
@@ -10,6 +9,8 @@ import (
 	"go/token"
 	"regexp"
 	"strings"
+
+	"github.com/beeceej/iGo/igo/parse"
 )
 
 var hasPackageStatementRegexp = regexp.MustCompile("^package.*")
