@@ -1,0 +1,13 @@
+github.com/beeceej/iGo v0.0.0-20190217213115-57809809f3eb h1:cYNqSrwgJCMnKX9JmLIkpBI9SoU2ZHgwvw/YUzwnHkw=
+github.com/beeceej/iGo v0.0.0-20190217213115-57809809f3eb/go.mod h1:MeNEPpu7Kw2ZDLvDNdbLWo69QKWiJwTFtNmyCExlgLc=
+github.com/golang/protobuf v0.0.0-20190109072247-347cf4a86c1c h1:EbwRu34LWoT5qLHr7vBWMyq7y3UKnqA8oUprhXG0ags=
+github.com/golang/protobuf v0.0.0-20190109072247-347cf4a86c1c/go.mod h1:Qd/q+1AKNOZr9uGQzbzCmRO6sUih6GTPZv6a1/R87v0=
+github.com/mattn/go-runewidth v0.0.4 h1:2BvfKmzob6Bmd4YsL0zygOqfdFnK7GR4QL06Do4/p7Y=
+github.com/mattn/go-runewidth v0.0.4/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
+github.com/nsf/termbox-go v0.0.0-20190104133558-0938b5187e61 h1:pEzZYac/uQ4cgaN1Q/UYZg+ZtCSWz2HQ3rvl8MeN9MA=
+github.com/nsf/termbox-go v0.0.0-20190104133558-0938b5187e61/go.mod h1:IuKpRQcYE1Tfu+oAQqaLisqDeXgjyyltCfsaoYN18NQ=
+golang.org/x/net v0.0.0-20180906233101-161cd47e91fd h1:nTDtHvHSdCn1m6ITfMRqtOd/9+7a3s8RBNOZ3eYZzJA=
+golang.org/x/net v0.0.0-20180906233101-161cd47e91fd/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
+golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f h1:wMNYb4v58l5UBM7MYRLPG6ZhfOqbKu7X5eyFl8ZhKvA=
+golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
+google.golang.org/genproto v0.0.0-20180831171423-11092d34479b/go.mod h1:JiN7NxoALGmiZfu7CAH4rXhgtRTLTxftemlI0sWmxmc=

@@ -2,7 +2,6 @@ package igoclient
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,22 +11,32 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+// Client is an http client which knows how to talk to an igod server
 type Client struct {
-	http.Client
+	*http.Client
+	Host string
+	Port string
 }
 
-func Test() {
-	h := http.DefaultClient
-	_ = igo.InterpretRequest{}
-	sampleBody := new(igopb.InterpretRequest)
-	sampleBody.In = `func hello() string {
-    return "Hello"
-}`
-	b, err := proto.Marshal(sampleBody)
-	if err != nil {
+// Interpret takes the code and sends it off to igod
+// then returns the response
+func (c *Client) Interpret(code string) (string, string) {
+	var (
+		b       []byte
+		err     error
+		h       = http.DefaultClient
+		request = new(igopb.InterpretRequest)
+	)
+	request.In = code
+	if b, err = proto.Marshal(request); err != nil {
 		log.Fatal(err.Error())
 	}
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9999/interpret", bytes.NewReader(b))
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		"http://"+c.Host+":"+c.Port+"/interpret",
+		bytes.NewReader(b),
+	)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -35,12 +44,16 @@ func Test() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	defer result.Body.Close()
+	defer func() {
+		if err = result.Body.Close(); err != nil {
+			panic(err.Error())
+		}
+	}()
+
 	b, err = ioutil.ReadAll(result.Body)
 	response := new(igo.InterpretResponse)
-	err = response.FromProtoBytes(b)
-	if err != nil {
+	if err = response.FromProtoBytes(b); err != nil {
 		log.Fatal(err.Error())
 	}
-	fmt.Println(response.Result.Info, response.Result.EvaluatedTo)
+	return response.Result.Info, response.Result.EvaluatedTo
 }
