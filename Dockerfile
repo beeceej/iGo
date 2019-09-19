@@ -22,7 +22,7 @@ RUN CGO_ENABLED=0 go build -a -ldflags '-w -extldflags "-static"' -o igod cmd/ig
 RUN CGO_ENABLED=0 go build -a -ldflags '-w -extldflags "-static"' -o igoclient cmd/igoclient/main.go
 
 ## Copy the binaries from binbuild for usage
-FROM alpine
+FROM golang:1.13-alpine
 COPY --from=binbuild /iGo/igod bin/igod
 COPY --from=binbuild /iGo/igoclient bin/igoclient
 COPY --from=binbuild /go/bin/goimports /bin/goimports
