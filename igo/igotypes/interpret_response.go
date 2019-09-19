@@ -34,10 +34,11 @@ func unmarshalInterpretResponse(data []byte, r *InterpretResponse) error {
 }
 
 func marshalInterpretResponse(r *InterpretResponse) ([]byte, error) {
-	pbresponse := new(igopb.InterpretResponse)
-	pbresult := new(igopb.Result)
-	pbresult.EvaluatedTo = r.Result.EvaluatedTo
-	pbresult.Info = r.Result.Info
-	pbresponse.Result = pbresult
+	pbresponse := &igopb.InterpretResponse{
+		Result: &igopb.Result{
+			EvaluatedTo: r.Result.EvaluatedTo,
+			Info:        r.Result.Info,
+		},
+	}
 	return proto.Marshal(pbresponse)
 }

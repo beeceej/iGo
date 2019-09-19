@@ -27,7 +27,7 @@ func (c *Client) Interpret(code string) (igotypes.InterpretResponse, error) {
 		response = new(igotypes.InterpretResponse)
 	)
 	request.Input = code
-	if b, err = igotypes.Marshall(request); err != nil {
+	if b, err = igotypes.Marshal(request); err != nil {
 		log.Fatal(err.Error())
 	}
 	req, err := http.NewRequest(
@@ -52,7 +52,7 @@ func (c *Client) Interpret(code string) (igotypes.InterpretResponse, error) {
 		return igotypes.InterpretResponse{}, err
 	}
 
-	if err = igotypes.Unmarshall(b, response); err != nil {
+	if err = igotypes.Unmarshal(b, response); err != nil {
 		return igotypes.InterpretResponse{}, err
 	}
 	return *response, nil

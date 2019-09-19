@@ -16,5 +16,5 @@ image: clean
 	@docker build -t beeceej/igo:$(TAG) .
 
 .PHONY: test
-test:
+test: generate
 	@go test ./...

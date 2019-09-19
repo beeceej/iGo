@@ -4,23 +4,23 @@ import (
 	"fmt"
 )
 
-// Unmarshall is a function which attempts to unmarshal
+// Unmarshal is a function which attempts to unmarshal
 // protobuf bytes into its go type
-func Unmarshall(data []byte, i interface{}) error {
+func Unmarshal(data []byte, i interface{}) (err error) {
 	switch t := i.(type) {
 	case *InterpretRequest:
-		unmarshalInterpretRequest(data, t)
+		err = unmarshalInterpretRequest(data, t)
 	case *InterpretResponse:
-		unmarshalInterpretResponse(data, t)
+		err = unmarshalInterpretResponse(data, t)
 	default:
-		return fmt.Errorf("unable to unmarshall %v", i)
+		err = fmt.Errorf("unable to unmarshal %v", i)
 	}
-	return nil
+	return err
 }
 
-// Marshall is a function which attempts to marshal
+// Marshal is a function which attempts to marshal
 // an igo type into it's protobuf byte form
-func Marshall(i interface{}) ([]byte, error) {
+func Marshal(i interface{}) ([]byte, error) {
 	switch t := i.(type) {
 	case *InterpretRequest:
 		return marshalInterpretRequest(t)

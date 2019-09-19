@@ -35,7 +35,7 @@ func (s *Server) Run() {
 		}()
 
 		interpretRequest := new(igotypes.InterpretRequest)
-		if err := igotypes.Unmarshall(b, interpretRequest); err != nil {
+		if err := igotypes.Unmarshal(b, interpretRequest); err != nil {
 			log.Fatalln(err.Error())
 		}
 		result := s.Interpreter.Interpret(interpretRequest.Input)
@@ -45,7 +45,7 @@ func (s *Server) Run() {
 				Info:        fmt.Sprintf("INFO: %s\n", result),
 			},
 		}
-		if b, err = igotypes.Marshall(response); err != nil {
+		if b, err = igotypes.Marshal(response); err != nil {
 			log.Fatalln(err.Error())
 		}
 		w.Write(b)
