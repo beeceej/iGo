@@ -14,6 +14,7 @@ import (
 type Server struct {
 	*http.ServeMux
 	Interpreter interpreter.Interpreter
+	Port        string
 }
 
 // Run is
@@ -51,7 +52,7 @@ func (s *Server) Run() {
 		w.Write(b)
 	})
 
-	if err := http.ListenAndServe(":9999", s); err != nil {
+	if err := http.ListenAndServe(fmt.Sprint(":", s.Port), s); err != nil {
 		log.Fatalln(err.Error())
 	}
 }
