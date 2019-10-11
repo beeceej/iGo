@@ -2,8 +2,6 @@
 [![Build Status](https://travis-ci.com/beeceej/iGo.svg?branch=master)](https://travis-ci.com/beeceej/iGo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/beeceej/iGo)](https://goreportcard.com/report/github.com/beeceej/iGo)
 
-![iGo-Demo](https://static.beeceej.com/iGoDemo.gif)
-
 ## Docker Build
 
 ```
@@ -29,7 +27,5 @@ TAG=latest make image
 Follow the development of iGo here:
 
 
-
-[writing-a-go-interpreter-in-go](https://blog.beeceej.com/blog/writing-a-go-interpreter-in-go)
-
-[writing-a-go-interpreter-in-go-pt2](https://blog.beeceej.com/blog/writing-a-go-interpreter-in-go-pt2)
+* [writing-a-go-interpreter-in-go](https://blog.beeceej.com/blog/writing-a-go-interpreter-in-go)
+* [writing-a-go-interpreter-in-go-pt2](https://blog.beeceej.com/blog/writing-a-go-interpreter-in-go-pt2)
